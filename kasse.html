@@ -111,6 +111,19 @@
   </div>
 
   <script>
+    const KASSEN_PIN = "4040"; // <-- Hier dein Passwort eintragen!
+
+    let gespeicherterPin = sessionStorage.getItem('kasse_pin');
+
+    if (gespeicherterPin !== KASSEN_PIN) {
+    const eingabe = prompt("Bitte Kassen-PIN eingeben:");
+    if (eingabe === KASSEN_PIN) {
+    sessionStorage.setItem('kasse_pin', KASSEN_PIN);
+    } else {
+    alert("Falscher PIN! Zugriff verweigert.");
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; color:red;'>🔒 Zugriff verweigert (Falscher PIN)</h2>";
+      }
+    }
     class OrderStore {
       constructor() {
         this.STORAGE_KEY = 'app_orders';
