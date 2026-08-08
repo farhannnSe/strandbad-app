@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Strandbad - Abholbereich</title>
+  <style>
+    :root {
+      --ocean-deep: #0284c7;
+      --ocean-light: #38bdf8;
+      --sand-light: #fef9c3;
+      --sand-gold: #fde047;
+      --text-dark: #0f172a;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --accent-green: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Montserrat', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      /* Sommerlicher Farbverlauf: Vom blauen Himmel/Wasser zum sandigen Strand */
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 40%, #fef3c7 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header im Strandbad-Stil */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 20px 30px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .subtitle {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--ocean-deep);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    /* Raster für die Bestellnummern */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 25px;
+      flex: 1;
+      align-content: start;
+    }
+
+    /* Nummernkarten */
+    .order-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 35px 20px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      border-top: 8px solid var(--ocean-deep);
+      border-bottom: 4px solid var(--sand-gold);
+      position: relative;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .order-number {
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--text-dark);
+      line-height: 1;
+    }
+
+    .order-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 16px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50px;
+    }
+
+    /* Zustand wenn keine Bestellungen da sind */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(5px);
+      border-radius: 24px;
+      border: 2px dashed rgba(2, 132, 199, 0.3);
+    }
+
+    .empty-state .icon {
+      font-size: 5rem;
+      margin-bottom: 15px;
+    }
+
+    .empty-state h2 {
+      font-size: 2.5rem;
+      color: var(--ocean-deep);
+    }
+
+    .empty-state p {
+      font-size: 1.4rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="subtitle">🌴 Strandbad Bar & Kiosk 🌴</div>
+    <h1>Bereit zur Abholung </h1>
+  </header>
+
+  <div id="tvGrid" class="grid"></div>
+
+  <script>
+    const grid = document.getElementById('tvGrid');
+
+    function updateTVDisplay() {
+      const orders = JSON.parse(localStorage.getItem('app_orders')) || [];
+      grid.innerHTML = '';
+
+      if (orders.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">☀️ 🏖️</div>
+            <h2>Genieße die Sonne!</h2>
+            <p>Aktuell sind alle Bestellungen abgeholt.</p>
+          </div>
+        `;
+        return;
+      }
+
+      orders.forEach(orderNumber => {
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        card.innerHTML = `
+          <div class="order-number">${orderNumber}</div>
+          <div class="order-badge">Abholbereit</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.addEventListener('storage', updateTVDisplay);
+    updateTVDisplay();
+  </script>
+</body>
+</html>

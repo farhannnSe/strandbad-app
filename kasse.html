@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Kasse - Strandbad</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --success: #16a34a;
+      --bg: #f0f9ff;
+      --card: #ffffff;
+      --text: #0f172a;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1);
+      border: 1px solid #bae6fd;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 14px;
+      font-size: 20px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-add {
+      padding: 14px 24px;
+      font-size: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .order-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .btn-check {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🏖️ Kasse: Nummer eingeben</h2>
+    <form id="orderForm" class="form-group">
+      <input type="text" id="orderInput" placeholder="Bestellnummer..." required autofocus autocomplete="off">
+      <button type="submit" class="btn-add">Rufen 📢</button>
+    </form>
+
+    <h3 style="margin-bottom: 12px; color: #475569;">Aktive Nummern auf dem TV:</h3>
+    <ul id="orderList" class="order-list"></ul>
+  </div>
+
+  <script>
+    class OrderStore {
+      constructor() {
+        this.STORAGE_KEY = 'app_orders';
+      }
+      getOrders() {
+        return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+      }
+      addOrder(number) {
+        const orders = this.getOrders();
+        orders.push(number);
+        this._save(orders);
+      }
+      removeOrder(index) {
+        const orders = this.getOrders();
+        orders.splice(index, 1);
+        this._save(orders);
+      }
+      _save(orders) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(orders));
+        window.dispatchEvent(new Event('storage'));
+      }
+    }
+
+    const store = new OrderStore();
+    const form = document.getElementById('orderForm');
+    const input = document.getElementById('orderInput');
+    const list = document.getElementById('orderList');
+
+    function render() {
+      const orders = store.getOrders();
+      list.innerHTML = '';
+      orders.forEach((order, index) => {
+        const li = document.createElement('li');
+        li.className = 'order-item';
+        li.innerHTML = `
+          <span>#${order}</span>
+          <button class="btn-check" onclick="removeOrder(${index})">✓ Abgeholt</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (val) {
+        store.addOrder(val);
+        input.value = '';
+        input.focus();
+      }
+    });
+
+    function removeOrder(index) {
+      store.removeOrder(index);
+    }
+
+    window.addEventListener('storage', render);
+    render();
+  </script>
+</body>
+</html>
