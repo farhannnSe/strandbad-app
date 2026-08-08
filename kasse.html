@@ -29,12 +29,34 @@
       border: 1px solid #bae6fd;
     }
 
-    h2 {
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0;
       color: var(--primary);
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .btn-logout {
+      background: #e2e8f0;
+      color: #475569;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .btn-logout:hover {
+      background: #cbd5e1;
     }
 
     .form-group {
@@ -100,7 +122,11 @@
 <body>
 
   <div class="card">
-    <h2>🏖️ Kasse: Nummer eingeben</h2>
+    <div class="header-bar">
+      <h2>🏖️ Kasse: Nummer eingeben</h2>
+      <button class="btn-logout" onclick="logout()">🔒 Abmelden</button>
+    </div>
+
     <form id="orderForm" class="form-group">
       <input type="text" id="orderInput" placeholder="Bestellnummer..." required autofocus autocomplete="off">
       <button type="submit" class="btn-add">Rufen 📢</button>
@@ -111,19 +137,28 @@
   </div>
 
   <script>
-    const KASSEN_PIN = "4646"; // <-- Hier dein Passwort eintragen!
+    // --- PIN SCHUTZ LOGIK ---
+    const KASSEN_PIN = "4646";
 
     let gespeicherterPin = sessionStorage.getItem('kasse_pin');
 
     if (gespeicherterPin !== KASSEN_PIN) {
-    const eingabe = prompt("Bitte Kassen-PIN eingeben:");
-    if (eingabe === KASSEN_PIN) {
-    sessionStorage.setItem('kasse_pin', KASSEN_PIN);
-    } else {
-    alert("Falscher PIN! Zugriff verweigert.");
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; color:red;'>🔒 Zugriff verweigert (Falscher PIN)</h2>";
+      const eingabe = prompt("Bitte Kassen-PIN eingeben:");
+      if (eingabe === KASSEN_PIN) {
+        sessionStorage.setItem('kasse_pin', KASSEN_PIN);
+      } else {
+        alert("Falscher PIN! Zugriff verweigert.");
+        document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; color:red;'>🔒 Zugriff verweigert (Falscher PIN)</h2>";
+        throw new Error("Zugriff verweigert"); // Stoppt die weitere Ausführung
       }
     }
+
+    function logout() {
+      sessionStorage.removeItem('kasse_pin');
+      location.reload(); // Lädt die Seite neu, woraufhin der PIN wieder verlangt wird
+    }
+
+    // --- BESTELLUNGS LOGIK ---
     class OrderStore {
       constructor() {
         this.STORAGE_KEY = 'app_orders';
